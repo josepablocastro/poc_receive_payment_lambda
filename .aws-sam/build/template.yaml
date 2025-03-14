@@ -1,0 +1,52 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'sam-app
+
+  Sample SAM Template for sam-app
+
+  '
+Globals:
+  Function:
+    Timeout: 5
+    MemorySize: 512
+    LoggingConfig:
+      LogFormat: JSON
+Resources:
+  ReceivePaymentFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: go1.x
+      SamResourceId: ReceivePaymentFunction
+    Properties:
+      CodeUri: ReceivePaymentFunction
+      Handler: bootstrap
+      Runtime: provided.al2023
+      Architectures:
+      - x86_64
+      Events:
+        CatchAll:
+          Type: Api
+          Properties:
+            Path: /receive_payment
+            Method: POST
+      Environment:
+        Variables:
+          DATA_SOURCE_SECRET: poc-rds-proxy
+          AWS_REGION: us-east-1
+Outputs:
+  ReceivePaymentAPI:
+    Description: API Gateway endpoint URL for Prod environment for First Function
+    Value:
+      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/receive_payment/
+  ReceivePaymentFunction:
+    Description: First Lambda Function ARN
+    Value:
+      Fn::GetAtt:
+      - ReceivePaymentFunction
+      - Arn
+  ReceivePaymentFunctionIamRole:
+    Description: Implicit IAM Role created for Hello World function
+    Value:
+      Fn::GetAtt:
+      - ReceivePaymentFunctionRole
+      - Arn
